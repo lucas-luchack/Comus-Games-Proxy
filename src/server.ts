@@ -15,7 +15,7 @@ function loadConfig() {
 
 app.use((req, res, next) => {
     const config = loadConfig();
-    const appName = req.headers['X-Comus-Requested-Game'] as string;
+    const appName = req.headers['x-comus-requested-game'] as string;
 
     if (appName && config[appName]) {
         createProxyMiddleware({
