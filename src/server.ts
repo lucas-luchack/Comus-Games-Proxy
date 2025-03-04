@@ -13,7 +13,7 @@ function loadConfig() {
     return JSON.parse(fs.readFileSync(configFile, 'utf-8'));
 }
 
-app.use('/:gameName/*', (req: express.Request, res: express.Response, next: express.NextFunction) => {
+app.use('/:gameName', (req: express.Request, res: express.Response, next: express.NextFunction) => {
     const config = loadConfig();
     const appName = req.params.gameName;
 

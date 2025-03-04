@@ -14,20 +14,40 @@ const configFile = './config.json';
 function loadConfig() {
     return JSON.parse(fs_1.default.readFileSync(configFile, 'utf-8'));
 }
-app.use((req, res, next) => {
+app.use('/:gameName', (req, res, next) => {
     const config = loadConfig();
-    const appName = req.headers['x-comus-requested-game'];
+    const appName = req.params.gameName;
     if (appName && config[appName]) {
         (0, http_proxy_middleware_1.createProxyMiddleware)({
             target: config[appName],
             changeOrigin: true,
             ws: true,
+            pathRewrite: {
+                [`^/${appName}`]: ''
+            }
         })(req, res, next);
     }
     else {
         res.status(404).send('Application not found');
     }
 });
+/**
+app.use((req, res, next) => {
+    const config = loadConfig();
+    const appName =
+    const appName = req.headers['x-comus-requested-game'] as string;
+
+    if (appName && config[appName]) {
+        createProxyMiddleware({
+            target: config[appName],
+            changeOrigin: true,
+            ws: true,
+        })(req, res, next);
+    } else {
+        res.status(404).send('Application not found');
+    }
+});
+*/
 app.listen(port, () => {
     console.log(`Proxy server running on http://localhost:${port}`);
 });
