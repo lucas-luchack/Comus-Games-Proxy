@@ -19,11 +19,20 @@ app.use('/:gameName', (req: express.Request, res: express.Response, next: expres
 
     if (appName && config[appName]) {
         createProxyMiddleware({
-            target: config[appName],
+            target: 'http://' + config[appName],
             changeOrigin: true,
             ws: true,
             pathRewrite: {
                 [`^/${appName}`]: ''
+            },
+            headers: {
+                'X-Forwarded-Proto': 'https'
+            },
+            router: (req) => {
+                if (req.headers['upgrade'] && req.headers['connection'] === 'upgrade') {
+                    return 'ws://' + config[appName];
+                }
+                return 'http://' + config[appName];
             }
         })(req, res, next);
     } else {
