@@ -6,7 +6,6 @@ import fs from 'fs';
 const app = express();
 const port = 21001;
 
-app.use(bodyParser.json());
 const configFile = './config.json';
 
 function loadConfig() {
@@ -19,26 +18,21 @@ app.use('/:gameName', (req: express.Request, res: express.Response, next: expres
 
     if (appName && config[appName]) {
         createProxyMiddleware({
-            target: 'http://' + config[appName],
+            target: config[appName],
             changeOrigin: true,
             ws: true,
-            pathRewrite: {
-                [`^/${appName}`]: ''
-            },
+            secure: false,
             headers: {
-                'X-Forwarded-Proto': 'https'
+                'X-Forwarded-Proto': 'https',
+                'Connection': 'keep-alive'
             },
-            router: (req) => {
-                if (req.headers['upgrade'] && req.headers['connection'] === 'upgrade') {
-                    return 'ws://' + config[appName];
-                }
-                return 'http://' + config[appName];
-            }
         })(req, res, next);
     } else {
         res.status(404).send('Application not found');
     }
 })
+
+app.use(bodyParser.json());
 
 /**
 app.use((req, res, next) => {
@@ -59,5 +53,5 @@ app.use((req, res, next) => {
 */
 
 app.listen(port, () => {
-    console.log(`Proxy server running on http://localhost:${port}`);
+    console.log(`Proxy server running on port ${port}`);
 });
